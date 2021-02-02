@@ -16,6 +16,7 @@ library(here)
 library(tsibble)
 library(feasts)
 library(slider)
+library(gghighlight)
 ```
 
 ## Overview
@@ -32,7 +33,12 @@ salmon_ts <- salmon %>%
   pivot_longer(cols = 3:15, 
                names_to = "species", 
                values_to = "count") %>% 
-  filter(species %in% c("Coho", "Jack.Coho", "Steelhead")) 
+  filter(species %in% c("Coho", "Jack.Coho", "Steelhead")) %>% 
+  replace_na(list(count = 0))
 
+ggplot(data = salmon_ts, aes(x = Date, y = count, group = species))+
+  geom_line(aes(color = species)) +
+  gghighlight()+ 
+  facet_wrap(~species)
 ```
 
