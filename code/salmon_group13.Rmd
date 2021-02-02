@@ -2,10 +2,37 @@
 title: "Salmon Time Series"
 author: "Shane Dewees"
 date: "2/2/2021"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+  
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(here)
+library(tsibble)
+library(feasts)
+library(slider)
+```
+
+## Overview
+
+## Data exploration and analysis {.tabset .tabset-fade .tabset-pills}
+
+### Original time series
+
+```{r, message= FALSE, warning= FALSE}
+salmon <- read.csv(here("data", "willamette_fish_passage.csv"))
+salmon_ts <- salmon %>% 
+  mutate(Date = mdy(Date)) %>% 
+  as_tsibble(key = NULL, index = Date) %>% 
+  pivot_longer(cols = 3:15, 
+               names_to = "species", 
+               values_to = "count") %>% 
+  filter(species %in% c("Coho", "Jack.Coho", "Steelhead")) 
+
 ```
 
