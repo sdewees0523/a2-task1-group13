@@ -1,6 +1,6 @@
 ---
 title: "Salmon Time Series"
-author: "Shane Dewees"
+author: "Shane Dewees, Aaron Kreisberg, and Carlos Simms"
 date: "2/2/2021"
 output: 
   html_document:
@@ -37,8 +37,21 @@ salmon_ts <- salmon %>%
   replace_na(list(count = 0))
 
 ggplot(data = salmon_ts, aes(x = Date, y = count, group = species))+
-  geom_line(aes(color = species)) +
-  gghighlight()+ 
-  facet_wrap(~species)
+  geom_line(aes(color = species), show.legend = FALSE) +
+  gghighlight(use_direct_label = FALSE, 
+              unhighlighted_colour = alpha("gray", 0.5))+ 
+  facet_wrap(~species)+
+  theme_classic()+
+  labs(title = "Salmon run counts at Willamette falls fish ladder from 2001-2010",
+       y = "Salmon count")
 ```
 
+Figure 1: Faceted timeseries of Salmon run counts sat Willamette falls fish ladder from 2001-2010 for Coho, Jack Coho, and Steelhead species. Run counts for all three species are shown in all three facets, but each facet highlights a specific species identified in the label. Coho are highlighted first in red, Jack Coho second in green and Steelhead last in blue. 
+
+#### Key takeaways 
+
+  * All three species show season cycles in their run counts, but the length of that seasonality is different for all three species. Jack Coho seems to have the most time between seasonal upticks in run counts with Steelhead showing the most reoccurrent seasonal upticks in run count. 
+  
+  * There is no observable trend or cyclicality to the run counts for any of the three species. 
+  
+  * Both Coho and Jack Coho show very variable run counts in their upticks, with some years having very small runs and some years having very large runs. Coho has both some of the smallest run years and the largest run years. Conversely, Steelhead seems more stable, with less variation in the run counts for its upticks. 
