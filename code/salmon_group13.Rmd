@@ -1,11 +1,54 @@
 ---
 title: "Salmon Time Series"
-author: "Shane Dewees"
+author: "Group 13"
 date: "2/2/2021"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, 
+                      message = FALSE, 
+                      warning = FALSE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
 ```
+
+### Tab 3: Annual Counts By Species
+
+```{r}
+annual_totals <- read_csv(here("data", 
+                               "willamette_fish_passage.csv")) %>% 
+  clean_names() %>% 
+  select(date, 
+         coho, 
+         jack_coho, 
+         steelhead)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
