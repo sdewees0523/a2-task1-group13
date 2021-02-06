@@ -1,6 +1,6 @@
 ---
 title: "Salmon Time Series"
-author: "Group 13"
+author: "Carlos Simms"
 date: "2/2/2021"
 output: html_document
 ---
@@ -10,21 +10,43 @@ knitr::opts_chunk$set(echo = TRUE,
                       message = FALSE, 
                       warning = FALSE)
 library(tidyverse)
-library(here)
-library(janitor)
 library(lubridate)
+library(here)
+library(tsibble)
+library(feasts)
+library(slider)
+library(gghighlight)
+library(patchwork)
+library(janitor)
 ```
 
 ### Tab 3: Annual Counts By Species
 
 ```{r}
-annual_totals <- read_csv(here("data", 
-                               "willamette_fish_passage.csv")) %>% 
-  clean_names() %>% 
-  select(date, 
+salmon <- read.csv(here("data", 
+                        "willamette_fish_passage.csv"))
+
+salmon_ts <- salmon %>% 
+  mutate(Date = mdy(Date)) %>% 
+  as_tsibble(key = NULL, 
+             index = Date) %>% 
+  pivot_longer(cols = 3:15, 
+               names_to = "species", 
+               values_to = "count") %>% 
+  filter(species %in% c("Coho", 
+                        "Jack.Coho", 
+                        "Steelhead")) %>% 
+  replace_na(list(count = 0))
+
+clean_names() %>% 
+  mutate(date = mdy(date), 
+         year = year(date)) %>% 
+  select(year, 
          coho, 
          jack_coho, 
-         steelhead)
+         steelhead) %>% 
+  replace_na(list(count = 0)) %>% 
+  group_by(year)
 ```
 
 
