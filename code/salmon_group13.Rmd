@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
                       message = FALSE, 
-                      warning = FALSE)
+                      warning = FALSE) # To suppress code messages and warnings.
 library(tidyverse)
 library(lubridate)
 library(here)
@@ -17,7 +17,7 @@ library(feasts)
 library(slider)
 library(gghighlight)
 library(patchwork)
-library(janitor)
+library(janitor) # The only added package.
 ```
 
 ### Tab 3: Annual Counts By Species
@@ -25,7 +25,7 @@ library(janitor)
 ```{r}
 salmon <- read.csv(here("data", 
                         "willamette_fish_passage.csv")) %>% 
-  clean_names()
+  clean_names() # To clean the data set.
 
 salmon_ts <- salmon %>% 
   mutate(date = mdy(date)) %>% 
@@ -37,17 +37,34 @@ salmon_ts <- salmon %>%
   filter(species %in% c("coho", 
                         "jack_coho", 
                         "steelhead")) %>% 
-  replace_na(list(count = 0))
+  replace_na(list(count = 0)) # To change the original data code to a cleaned, vertical structure.
 
-annual_totals <- salmon_ts %>% 
+annual_totals <- salmon_ts %>%
   mutate(year = year(date), 
-         .keep = "unused") %>% 
+         .keep = "unused") %>% # To mutate the lubridate::date as a new variable "year" and omit the source variable "date".
   select(species, 
          count, 
-         year) %>% 
+         year) %>% # To select the variables of interest.
   group_by(year, 
            species) %>% 
-  summarize(annual_total = sum(count))
+  summarize(annual_total = sum(count)) # To group by year and species, and then use 'sum()' within 'summarize()' to derive annual totals for the three species.
+
+facet_names <- c('coho' = "Coho", 
+                 'jack_coho' = "Jack Coho", 
+                 'steelhead' = "Steelhead")
+
+ggplot(data = annual_totals, 
+       aes(x = year, 
+           y = annual_total)) + 
+  geom_col(aes(fill = species)) + 
+  labs(title = "TITLE",
+       x = "Year", 
+       y = "Total Annual Fish Passage") + 
+  theme_bw() + 
+  theme(plot.title = element_text(face = "bold", 
+                                  hjust = 0.5), 
+        axis.title.x = element_text(vjust = -2), 
+        axis.title.y = element_text(vjust = 3))
 ```
 
 
