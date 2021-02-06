@@ -24,29 +24,30 @@ library(janitor)
 
 ```{r}
 salmon <- read.csv(here("data", 
-                        "willamette_fish_passage.csv"))
+                        "willamette_fish_passage.csv")) %>% 
+  clean_names()
 
 salmon_ts <- salmon %>% 
-  mutate(Date = mdy(Date)) %>% 
+  mutate(date = mdy(date)) %>% 
   as_tsibble(key = NULL, 
-             index = Date) %>% 
+             index = date) %>% 
   pivot_longer(cols = 3:15, 
                names_to = "species", 
                values_to = "count") %>% 
-  filter(species %in% c("Coho", 
-                        "Jack.Coho", 
-                        "Steelhead")) %>% 
+  filter(species %in% c("coho", 
+                        "jack_coho", 
+                        "steelhead")) %>% 
   replace_na(list(count = 0))
 
-clean_names() %>% 
-  mutate(date = mdy(date), 
-         year = year(date)) %>% 
-  select(year, 
-         coho, 
-         jack_coho, 
-         steelhead) %>% 
-  replace_na(list(count = 0)) %>% 
-  group_by(year)
+annual_totals <- salmon_ts %>% 
+  mutate(year = year(date), 
+         .keep = "unused") %>% 
+  select(species, 
+         count, 
+         year) %>% 
+  group_by(year, 
+           species) %>% 
+  summarize(annual_total = sum(count))
 ```
 
 
