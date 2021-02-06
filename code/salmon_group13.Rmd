@@ -6,26 +6,10 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, 
-                      message = FALSE, 
-                      warning = FALSE)
-library(tidyverse)
-library(here)
-library(janitor)
-library(lubridate)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Tab 3: Annual Counts By Species
 
-```{r}
-annual_totals <- read_csv(here("data", 
-                               "willamette_fish_passage.csv")) %>% 
-  clean_names() %>% 
-  select(date, 
-         coho, 
-         jack_coho, 
-         steelhead)
-```
 
 
 
