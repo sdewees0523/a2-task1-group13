@@ -23,6 +23,18 @@ library(patchwork)
 
 ## Overview
 
+In this brief report, adult Salmon passage data recorded from 2001 to 2010 at the Willamette Falls fish ladder on the Willamette River, OR, is explored and evaluated. Provided below are timeseries and seasonality plots of annual and monthly run counts for Coho, Jack Coho, and Steelhead Salmon at this location and for the period indicated. Also provided below, is the total observed annual Salmon passage count for the three species.
+
+![**Image 1.** The Willamette Falls fish ladder on the Willamette River in Oregon. *(Source: Oregon Department of Fish and Wildlife)*](https://myodfw.com/sites/default/files/styles/380_max_width/public/2017-10/willamette_falls.jpg?itok=YSKK9Ko3)
+
+**Map Location:**
+
+INSERT MAP DETAIL HERE
+
+**Data Citation:**
+
+Columbia Basin Research. *DART adult passage*. (University of Washington, Seattle, 2010). http://www.cbr.washington.edu/dart/query/adult_graph_text
+
 ## Data Exploration and Analysis {.tabset .tabset-fade .tabset-pills}
 
 ### Original Time Series
@@ -43,12 +55,15 @@ ggplot(data = salmon_ts, aes(x = Date, y = count, group = species))+
   gghighlight(use_direct_label = FALSE, 
               unhighlighted_colour = alpha("gray", 0.5))+ 
   facet_wrap(~species)+
-  theme_classic()+
-  labs(title = "Salmon run counts at Willamette falls fish ladder from 2001-2010",
-       y = "Salmon count")
+  theme_bw()+ 
+  theme(plot.title = element_text(face = "bold", 
+                                  hjust = 0.5))+
+  labs(title = "Salmon Run Counts at Willamette Falls Fish Ladder 2001-10",
+       y = "Salmon Count", 
+       x = "Year")
 ```
 
-**Figure 1.** Faceted timeseries of Salmon run counts sat Willamette falls fish ladder from 2001-2010 for Coho, Jack Coho, and Steelhead species. Run counts for all three species are shown in all three facets, but each facet highlights a specific species identified in the label. Coho are highlighted first in red, Jack Coho second in green and Steelhead last in blue. 
+**Figure 1.** Faceted timeseries of Salmon run counts at Willamette falls fish ladder from 2001-2010 for Coho, Jack Coho, and Steelhead species. Run counts for all three species are shown in all three facets, but each facet highlights a specific species identified in the label. Coho are highlighted first in red, Jack Coho second in green and Steelhead last in blue. 
 
 #### Takeaways 
 
@@ -74,6 +89,7 @@ coho_month <- coho_salmon %>%
  summarize(count = mean(count, na.rm = TRUE)) %>% 
   gg_season(y = count) +
   labs(title = "Coho", y = "Salmon Count", x = NULL) +
+  theme_bw() + 
   theme(legend.position = "none")
 
 p1 <- coho_month
@@ -81,7 +97,8 @@ p1 <- coho_month
 jack_coho_month <- jack_coho_salmon %>% 
  summarize(count = mean(count, na.rm = TRUE)) %>% 
   gg_season(y = count) +
-  labs(title = "Jack Coho", y = NULL, x = "Month") +
+  labs(title = "Jack.Coho", y = NULL, x = "Month") +
+  theme_bw() + 
   theme(legend.position = "none")
 
 p2 <- jack_coho_month
@@ -89,7 +106,8 @@ p2 <- jack_coho_month
 steelhead_month <- steelhead_salmon %>% 
  summarize(count = mean(count, na.rm = TRUE)) %>% 
   gg_season(y = count) +
-  labs(title = "Steelhead", y = NULL, x = NULL) 
+  labs(title = "Steelhead", y = NULL, x = NULL) + 
+  theme_bw()
 
 p3 <- steelhead_month
 
@@ -118,12 +136,6 @@ annual_totals <- salmon_ts %>%
   group_by(year, 
            species) %>% 
   summarize(annual_total = sum(count)) # To group by year and species to derive annual totals.
-```
-
-```{r, message = FALSE, warning = FALSE}
-facet_names <- c('coho' = "Coho", 
-                 'jack_coho' = "Jack Coho", 
-                 'steelhead' = "Steelhead") # To change display names of the species via a vector.
 
 ggplot(data = annual_totals, 
        aes(x = year, 
@@ -131,7 +143,7 @@ ggplot(data = annual_totals,
   geom_col(aes(fill = species), 
            show.legend = FALSE) + 
   facet_wrap(~species) + # OPINION: The best way to visualize this was via a faceted column graph.
-  labs(title = "Total Annual Passage of Salmon Species From 2001 to 2010",
+  labs(title = "Total Annual Passage of Salmon Species 2001-10",
        x = "Year", 
        y = "Total Annual Fish Passage") + 
   theme_bw() + 
@@ -139,8 +151,6 @@ ggplot(data = annual_totals,
                                   hjust = 0.5), 
         axis.title.x = element_text(vjust = -2), 
         axis.title.y = element_text(vjust = 3)) + 
-  facet_grid(. ~ species, 
-             labeller = as_labeller(facet_names)) + # To specify names as the vector.
   scale_x_continuous(breaks = c(2001:2010), 
                      labels = c("01", "02", "03", "04", "05", 
                                 "06", "07", "08", "09", "10")) # To rename X axis value labels to simpler indeces.
