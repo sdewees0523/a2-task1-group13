@@ -2,13 +2,19 @@
 title: "Recorded Fish Passage at Willamette Falls, OR"
 author: "Carlos Simms"
 date: "2/2/2021"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+  
 ---
+## Overview
 
+## Data exploration and analysis {.tabset .tabset-fade .tabset-pills}
+
+### Seasonality
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, 
-                      message = FALSE, 
-                      warning = FALSE) # To suppress code messages and warnings.
+knitr::opts_chunk$set(echo = TRUE)
+
 library(tidyverse)
 library(lubridate)
 library(here)
@@ -17,8 +23,62 @@ library(feasts)
 library(slider)
 library(gghighlight)
 library(patchwork)
-library(janitor) # The only added package.
 ```
+
+```{r, message = FALSE, warning = FALSE}
+salmon <- read.csv(here("data", "willamette_fish_passage.csv"))
+salmon_ts <- salmon %>% 
+  mutate(Date = mdy(Date)) %>% 
+  as_tsibble(key = NULL, index = Date) %>% 
+  pivot_longer(cols = 3:15, 
+               names_to = "species", 
+               values_to = "count") %>% 
+  filter(species %in% c("Coho", "Jack.Coho", "Steelhead")) %>% 
+  replace_na(list(count = 0))
+
+coho_salmon <- salmon_ts %>% 
+  filter(species == "Coho")
+  
+jack_coho_salmon <- salmon_ts %>% 
+  filter(species == "Jack.Coho")
+  
+steelhead_salmon <- salmon_ts %>% 
+  filter(species == "Steelhead")
+  
+  
+coho_month <- coho_salmon %>% 
+ summarize(count = mean(count, na.rm = TRUE)) %>% 
+  gg_season(y = count) +
+  labs(title = "Coho", y = "Salmon Count", x = NULL) +
+  theme(legend.position = "none")
+
+p1 <- coho_month
+
+jack_coho_month <- jack_coho_salmon %>% 
+ summarize(count = mean(count, na.rm = TRUE)) %>% 
+  gg_season(y = count) +
+  labs(title = "Jack Coho", y = NULL, x = "Month") +
+  theme(legend.position = "none")
+
+p2 <- jack_coho_month
+
+steelhead_month <- steelhead_salmon %>% 
+ summarize(count = mean(count, na.rm = TRUE)) %>% 
+  gg_season(y = count) +
+  labs(title = "Steelhead", y = NULL, x = NULL) 
+
+p3 <- steelhead_month
+
+(p1 | p2 | p3)
+```
+
+**Figure 2:** Seasonality plots of monthly salmon run counts at the Willamette Falls fish ladder, 2001-2010. Plots show Coho, Jack Coho, and Steelhead salmon.
+
+*The seasonality of Coho and Jack Coho salmon runs are very similar, with an intense, temporally brief run that peaks in October. 
+
+*Steelhead salmon runs occur mostly in the first half of the year and show some variation but tend to fall between February and July.
+
+*The seasonality plots further support the variability of Coho and Jack Coho runs and the relative stability of Steelhead runs.
 
 ```{r}
 salmon <- read.csv(here("data", 
