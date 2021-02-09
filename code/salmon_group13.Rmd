@@ -29,7 +29,7 @@ In this brief report, adult Salmon passage data recorded from 2001 to 2010 at th
 
 **Map Location:**
 
-INSERT MAP DETAIL HERE
+![**Image 2.** Map of Willamette Falls fish ladder in reference to other monitoring locations within the Willamette Basin. *(Source: Erdman, C. S., Caudill, C. C., Naughton, G. P., and Jepson, M. A.. 2018. Release of hatchery adult steelhead for angler opportunity increases potential for interactions with endemic steelhead. Ecosphere 9( 10):e02448. 10.1002/ecs2.2448)*](https://esajournals.onlinelibrary.wiley.com/cms/asset/f5f31b28-3748-4c5d-a37b-c0be122aa919/ecs22448-fig-0001-m.jpg)
 
 **Data Citation:**
 
