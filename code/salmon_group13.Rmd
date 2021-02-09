@@ -1,38 +1,85 @@
 ---
-title: "Salmon Time Series"
-author: "Group 13"
+title: "Recorded Fish Passage at Willamette Falls, OR"
+author: "Carlos Simms"
 date: "2/2/2021"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, 
+                      message = FALSE, 
+                      warning = FALSE) # To suppress code messages and warnings.
+library(tidyverse)
+library(lubridate)
+library(here)
+library(tsibble)
+library(feasts)
+library(slider)
+library(gghighlight)
+library(patchwork)
+library(janitor) # The only added package.
 ```
 
+```{r}
+salmon <- read.csv(here("data", 
+                        "willamette_fish_passage.csv")) %>% 
+  clean_names() # To clean the data set.
 
+salmon_ts <- salmon %>% 
+  mutate(date = mdy(date)) %>% 
+  as_tsibble(key = NULL, 
+             index = date) %>% 
+  pivot_longer(cols = 3:15, 
+               names_to = "species", 
+               values_to = "count") %>% 
+  filter(species %in% c("coho", 
+                        "jack_coho", 
+                        "steelhead")) %>% 
+  replace_na(list(count = 0)) # To change the original data code to a cleaned, vertical structure.
+```
 
+```{r}
+annual_totals <- salmon_ts %>%
+  mutate(year = year(date), 
+         .keep = "unused") %>% # To mutate the lubridate::date as a new variable "year" and omit the source variable "date".
+  select(species, 
+         count, 
+         year) %>% # To select the variables of interest.
+  group_by(year, 
+           species) %>% 
+  summarize(annual_total = sum(count)) # To group by year and species to derive annual totals.
+```
 
+```{r}
+facet_names <- c('coho' = "Coho", 
+                 'jack_coho' = "Jack Coho", 
+                 'steelhead' = "Steelhead") # To change display names of the species via a vector.
 
+ggplot(data = annual_totals, 
+       aes(x = year, 
+           y = annual_total)) + 
+  geom_col(aes(fill = species), 
+           show.legend = FALSE) + 
+  facet_wrap(~species) + # OPINION: The best way to visualize this was via a faceted column graph.
+  labs(title = "Total Annual Passage of Salmon Species From 2001 to 2010",
+       x = "Year", 
+       y = "Total Annual Fish Passage") + 
+  theme_bw() + 
+  theme(plot.title = element_text(face = "bold", 
+                                  hjust = 0.5), 
+        axis.title.x = element_text(vjust = -2), 
+        axis.title.y = element_text(vjust = 3)) + 
+  facet_grid(. ~ species, 
+             labeller = as_labeller(facet_names)) + # To specify names as the vector.
+  scale_x_continuous(breaks = c(2001:2010), 
+                     labels = c("01", "02", "03", "04", "05", 
+                                "06", "07", "08", "09", "10")) # To rename X axis value labels to simpler indeces.
+```
 
+**Figure 3.** Total observed annual salmon passage count by species, between 2001 and 2010 via fish ladders at Willamette Falls, Oregon. 
 
+- More Steelhead Salmon have passed through the Willamette Falls fish ladders than that of any of the other two species.
 
+- There was a significant increased count of Coho Salmon passing through the Willamette Falls fish ladders in 2009 and 2010, versus in any of the previous record years.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- There is a decreasing trend in Steelhead Salmon count and a consistent trend of Jack Coho Salmon count passing through the Willamette Falls fish ladders throughout the 2001 to 2010 period.
