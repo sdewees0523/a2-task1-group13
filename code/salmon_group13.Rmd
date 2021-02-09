@@ -1,20 +1,14 @@
 ---
 title: "Recorded Fish Passage at Willamette Falls, OR"
-author: "Carlos Simms"
+author: "Shane Dewees, Aaron Kreisberg, and Carlos Simms"
 date: "2/2/2021"
 output: 
   html_document:
     code_folding: hide
   
 ---
-## Overview
-
-## Data exploration and analysis {.tabset .tabset-fade .tabset-pills}
-
-### Seasonality
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 library(tidyverse)
 library(lubridate)
 library(here)
@@ -25,7 +19,13 @@ library(gghighlight)
 library(patchwork)
 ```
 
-```{r, message = FALSE, warning = FALSE}
+## Overview
+
+## Data exploration and analysis {.tabset .tabset-fade .tabset-pills}
+
+### Original time series
+
+```{r, message= FALSE, warning= FALSE}
 salmon <- read.csv(here("data", "willamette_fish_passage.csv"))
 salmon_ts <- salmon %>% 
   mutate(Date = mdy(Date)) %>% 
@@ -35,6 +35,30 @@ salmon_ts <- salmon %>%
                values_to = "count") %>% 
   filter(species %in% c("Coho", "Jack.Coho", "Steelhead")) %>% 
   replace_na(list(count = 0))
+
+ggplot(data = salmon_ts, aes(x = Date, y = count, group = species))+
+  geom_line(aes(color = species), show.legend = FALSE) +
+  gghighlight(use_direct_label = FALSE, 
+              unhighlighted_colour = alpha("gray", 0.5))+ 
+  facet_wrap(~species)+
+  theme_classic()+
+  labs(title = "Salmon run counts at Willamette falls fish ladder from 2001-2010",
+       y = "Salmon count")
+```
+
+Figure 1: Faceted timeseries of Salmon run counts sat Willamette falls fish ladder from 2001-2010 for Coho, Jack Coho, and Steelhead species. Run counts for all three species are shown in all three facets, but each facet highlights a specific species identified in the label. Coho are highlighted first in red, Jack Coho second in green and Steelhead last in blue. 
+
+#### Key takeaways 
+
+  * All three species show season cycles in their run counts, but the length of that seasonality is different for all three species. Jack Coho seems to have the most time between seasonal upticks in run counts with Steelhead showing the most reoccurrent seasonal upticks in run count. 
+  
+  * There is no observable trend or cyclicality to the run counts for any of the three species. 
+  
+  * Both Coho and Jack Coho show very variable run counts in their upticks, with some years having very small runs and some years having very large runs. Coho has both some of the smallest run years and the largest run years. Conversely, Steelhead seems more stable, with less variation in the run counts for its upticks. 
+
+### Seasonality
+
+```{r, message = FALSE, warning = FALSE}
 
 coho_salmon <- salmon_ts %>% 
   filter(species == "Coho")
@@ -80,27 +104,12 @@ p3 <- steelhead_month
 
 *The seasonality plots further support the variability of Coho and Jack Coho runs and the relative stability of Steelhead runs.
 
-```{r}
-salmon <- read.csv(here("data", 
-                        "willamette_fish_passage.csv")) %>% 
-  clean_names() # To clean the data set.
+### Species annual counts
 
-salmon_ts <- salmon %>% 
-  mutate(date = mdy(date)) %>% 
-  as_tsibble(key = NULL, 
-             index = date) %>% 
-  pivot_longer(cols = 3:15, 
-               names_to = "species", 
-               values_to = "count") %>% 
-  filter(species %in% c("coho", 
-                        "jack_coho", 
-                        "steelhead")) %>% 
-  replace_na(list(count = 0)) # To change the original data code to a cleaned, vertical structure.
-```
 
-```{r}
+```{r, message= FALSE, warning= FALSE}
 annual_totals <- salmon_ts %>%
-  mutate(year = year(date), 
+  mutate(year = year(Date), 
          .keep = "unused") %>% # To mutate the lubridate::date as a new variable "year" and omit the source variable "date".
   select(species, 
          count, 
@@ -110,7 +119,7 @@ annual_totals <- salmon_ts %>%
   summarize(annual_total = sum(count)) # To group by year and species to derive annual totals.
 ```
 
-```{r}
+```{r, message= FALSE, warning= FALSE}
 facet_names <- c('coho' = "Coho", 
                  'jack_coho' = "Jack Coho", 
                  'steelhead' = "Steelhead") # To change display names of the species via a vector.
@@ -143,3 +152,4 @@ ggplot(data = annual_totals,
 - There was a significant increased count of Coho Salmon passing through the Willamette Falls fish ladders in 2009 and 2010, versus in any of the previous record years.
 
 - There is a decreasing trend in Steelhead Salmon count and a consistent trend of Jack Coho Salmon count passing through the Willamette Falls fish ladders throughout the 2001 to 2010 period.
+
